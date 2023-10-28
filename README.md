@@ -157,8 +157,7 @@ FedCM API:
 - Extended APIs
   - UserInfo API (personalized login button)
   - IDP Sign-In API
-  - Support for User Interaction UX (Scope management) 
-    - For more information, see [issue #477](https://github.com/fedidcg/FedCM/issues/477).
+  - Limited Support for AuthZ (Scope management)
 
 ## Known working browsers
 

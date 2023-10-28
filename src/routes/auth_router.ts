@@ -5,15 +5,11 @@ import { User } from '../services/user';
 import { SerializedAuthenticatorDevice } from '../services/userManager';
 const base64url = require('base64url');
 
+
 export const authRouter = Router();
 
 // Set the expiration time for the login session to 5 minutes
 const EXPIRATION_OFFSET = 5 * 60 * 1000; // 5 minutes
-
-// IDP Sign-In Status header
-const IDP_LOGINSTATUS_HEADER = 'Set-Login';
-const IDP_LOGINSTATUS_LOGGEDIN = 'logged-in';
-const IDP_LOGINSTATUS_LOGGEDOUT = 'logged-out';
 
 import {
   // Registration
@@ -221,7 +217,7 @@ authRouter.post('/verify-registration', async (req, res) => {
     req.session.loginSessionExpiration = expiration;
 
     // Set FedCM Sign-In status via header
-    res.set(IDP_LOGINSTATUS_HEADER, IDP_LOGINSTATUS_LOGGEDIN);
+    res.set('IdP-SignIn-Status', 'action=signin');
   }
 
   // Cleanup registration states
@@ -407,7 +403,7 @@ authRouter.post('/verify-authentication', async (req, res) => {
   req.session.loginSessionExpiration = expiration;
 
   // Set FedCM Sign-In status via header
-  res.set(IDP_LOGINSTATUS_HEADER, IDP_LOGINSTATUS_LOGGEDIN);
+  res.set('IdP-SignIn-Status', 'action=signin');
 
   // Cleanup authentication states
   req.session.passkeyLogin = undefined;
@@ -446,9 +442,9 @@ authRouter.post('/signup', async (req: Request, res: Response) => {
   const emailHash = bcrypt.hashSync(email, 10)
 
   // Generate a random avatar URL
-  const avatarUrl = `https://api.dicebear.com/7.x/bottts/png?seed=${encodeURIComponent(
+  const avatarUrl = `https://avatars.dicebear.com/api/bottts/${encodeURIComponent(
     emailHash
-  )}`
+  )}.png`
 
   // Save the new user
   const newUser: User = {
@@ -471,7 +467,7 @@ authRouter.post('/signup', async (req: Request, res: Response) => {
   req.session.loginSessionExpiration = expiration;
 
   // Set FedCM Sign-In status via header
-  res.set(IDP_LOGINSTATUS_HEADER, IDP_LOGINSTATUS_LOGGEDIN);
+  res.set('IdP-SignIn-Status', 'action=signin');
 
   //console.log('signup - req.session.user:', req.session.user)
   // Redirect to the root URL after successful account creation and sign-in
@@ -484,6 +480,8 @@ authRouter.post('/signup', async (req: Request, res: Response) => {
  * User sign-in endpoint.
  * @route POST /signin
  */
+
+
 authRouter.post('/signin', async (req: Request, res: Response) => {
   const { email, secret } = req.body
 
@@ -497,6 +495,7 @@ authRouter.post('/signin', async (req: Request, res: Response) => {
     return res.status(401).send({ error: 'Invalid email or password' })
   }
 
+
   // Store user information and secret in the session
   req.session.loggedInUser = user
 
@@ -505,7 +504,7 @@ authRouter.post('/signin', async (req: Request, res: Response) => {
   req.session.loginSessionExpiration = expiration;
 
   // Set FedCM Sign-In status via header
-  res.set(IDP_LOGINSTATUS_HEADER, IDP_LOGINSTATUS_LOGGEDIN);
+  res.set('IdP-SignIn-Status', 'action=signin');
 
   //console.log('signin - req.session.user:', req.session.user)
   // Redirect to the root URL after successful sign-in
@@ -593,7 +592,7 @@ authRouter.post('/delete-user', async (req: Request, res: Response) => {
 authRouter.post('/signout', (req: Request, res: Response) => {
 
   // Set FedCM Sign-In status via header
-  res.set(IDP_LOGINSTATUS_HEADER, IDP_LOGINSTATUS_LOGGEDOUT);
+  res.set('IdP-SignIn-Status', 'action=signout-all');
 
   if (req.session) {
     req.session.destroy(err => {

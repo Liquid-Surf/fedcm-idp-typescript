@@ -79,14 +79,39 @@ function submitForm (form, path, errorMessage) {
     .catch(err => handleError(err, errorMessage))
 }
 
-function handleSuccess () {
+async function handleSuccess () {
   // In case were in a FedCM iFrame  - close it
   if (window.IdentityProvider && IdentityProvider.close) {
     try {
       IdentityProvider.close()
     } catch (e) {}
   }
+  const idp_url = document.location.hostname
+  await add_idp(idp_url)
   location.reload()
+}
+
+const add_idp = async (idp_url) => {
+  const url = 'http://localhost:3000/providers';
+  const  res = await fetch(url)
+  const res_json = await res.json()
+  let urls = res_json.urls
+  urls.push(idp_url)
+
+  const postData = {
+    urls
+  };
+
+  const fetchOptions = {
+    method: 'POST', 
+    headers: {
+      'Content-Type': 'application/json', 
+    },
+    body: JSON.stringify(postData) 
+  };
+
+  const r = await fetch(url, fetchOptions)
+
 }
 
 function handleError (error, errorDisplay) {
