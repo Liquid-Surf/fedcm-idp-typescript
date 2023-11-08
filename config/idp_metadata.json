@@ -1,5 +1,17 @@
 {
-  "localhost": {
+  "idp-1.localhost": {
+    "branding": {
+      "background_color": "rgb(255, 255, 204)",
+      "color": "0xffffff",
+      "icons": [
+        {
+          "url": "{baseUrl}/images/idp-1.png",
+          "size": 32
+        }
+      ]
+    }
+  },
+  "idp-2.localhost": {
     "branding": {
       "background_color": "rgb(255, 255, 204)",
       "color": "0xffffff",
